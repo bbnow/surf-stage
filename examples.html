@@ -54,25 +54,25 @@
 
 <p><img src="images/example_1_1.png" alt="Example1 Picture"></p>
 
-<p>In this example the data source and the application are very simple – data source generates a stream of time-stamps, the application displays the time-stamps on a console.</p>
+<p>Example's scenario is very simple – a local data source generates a stream of time-stamps, the cloud application displays the time-stamps on a console.</p>
 
 <h3>
 <a name="surf-data-source" class="anchor" href="#surf-data-source"><span class="octicon octicon-link"></span></a>Surf Data Source</h3>
 
 <p>The code for the data source can be found in file <code>com.informatica.surf.sources.dummy.DummySource.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sources/dummy/src/main/java/com/informatica/surf/sources/dummy/DummySource.java">here</a>. </p>
 
-<p>For this example the data source generates time-stamps and streams them to Kinesis application. Here is the code snippet performing this operation:</p>
+<p>For this example the data source generates time-stamps and streams them to a Kinesis application. Here is the code snippet performing this operation:</p>
 
 <pre><code>public void read(VDSEventList readEvents) throws Exception {
      Thread.sleep(1000);
      Date d = new Date();
      byte []b = d.toString().getBytes();
      readEvents.addEvent(b, b.length, _headers);
-} 
+}
 </code></pre>
 
 <blockquote>
-<p>Generally, Surf users do not need to develop data source code. They only need to configure a data source like File-tailer, HTTP, or MQTT. However, the user may also easily develop a new data source as needed.</p>
+<p>Generally, Surf users do not need to develop code in order for Surf to access a data source. They only configure Surf with a few properties for File-tailer, HTTP, or MQTT. However, if needed users may also easily develop logic for a new data source based on existing examples.</p>
 </blockquote>
 
 <h3>
@@ -80,14 +80,14 @@
 
 <p>Source code for a simple Surf application used in this example is located in <code>com.informatica.surf.sample.DumpStream.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sample/src/main/java/com/informatica/surf/sample/DumpStream.java">here</a>.</p>
 
-<p>In this case the application logic is very simple – take a record from Kinesis stream and print it. Here the code snippet:</p>
+<p>In this case the application logic is very simple – take a record from Kinesis stream and print it. Here is the code snippet:</p>
 
-<pre><code>public void onEvent(KinesisEvent kinesisEvent, long l, boolean b) throws Exception {    
+<pre><code>public void onEvent(KinesisEvent kinesisEvent, long l, boolean b) throws Exception {
     System.out.println(String.format("Received : %s", kinesisEvent.getData()));
 }
 </code></pre>
 
-<p>Application developer only needs to provide a handler - <em>onEvent</em> – and include the application logic within this handler.</p>
+<p>Application developer only provides a handler - <em>onEvent</em> – and includes the application logic within this handler.</p>
 
 <h3>
 <a name="configuration-steps" class="anchor" href="#configuration-steps"><span class="octicon octicon-link"></span></a>Configuration Steps</h3>
@@ -99,36 +99,38 @@
 4. Observe system in action<br></p>
 
 <p><strong>Enabling Kinesis Stream</strong><br>
-First we need to create a Kinesis stream. Do this by logging into AWS Kinesis console.</p>
+First we need to create a Kinesis stream. Do this by logging into <a href="https://console.aws.amazon.com/kinesis/?#">AWS Kinesis console</a>. Instructions can be found <a href="http://docs.aws.amazon.com/kinesis/latest/dev/step-one-create-stream.html">here</a>.</p>
 
 <p><img src="images/example_1_2.png" alt="Kinesis Stream Create Picture"></p>
 
-<p>Remember Kinesis stream name as it is used for configuration of Surf processes.</p>
+<p>Remember <em>Kinesis stream name</em> as it is used for configuration of Surf processes.</p>
 
 <p><strong>Configuring Surf Application</strong><br>
-Bring up an EC2 instance and copy Surf distribution package to it. We will refer to the top-level directory of the distribution as <em><strong>surf-home</strong></em>.
-The distribution package can be found in <em>assembly/target/surf-1.0-dist</em> directory of the Surf tree once it is built by Maven.</p>
+Bring up an EC2 instance and copy Surf distribution package to it. Details on starting an EC2 instance and interacting with it can be found <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html">here</a>.</p>
 
-<p>The next step is to create a configuration file that contain AWS credentials and Kinesis stream name. The file should reside in <em><strong>surf-home</strong>/conf</em> directory. 
-Let’s name the file <em>app-node1.config</em> and place following entries into it:</p>
+<p>We will refer to the top-level directory of Surf distribution as <em><strong>surf-home</strong></em>.
+The distribution package can be found in <em>assembly/target/surf-1.0-dist</em> directory of the Surf repository tree once it is built by Maven. Instructions for Surf build process are <a href="https://github.com/InformaticaCorp/Surf#build">here</a>.</p>
+
+<p>The next step is to create a configuration file that contain AWS credentials and <em>Kinesis stream name</em>. The file should reside in <em><strong>surf-home</strong>/conf</em> directory.
+Let’s name the file <em>app-node1.config</em> and place the following entries into it:</p>
 
 <pre><code>aws-access-key-id: &lt;your aws access key&gt;
 aws-secret-key: &lt;your aws secret key&gt;
 aws-kinesis-stream-name: &lt;kinesis stream name&gt;
 </code></pre>
 
-<p>Next, make sure that Java 7 JRE is available and is configured properly. Note that note only the right JRE should be available, but also JAVA_HOME should be pointing to the JRE’s directory.  </p>
+<p>Next, make sure that Java 7 JRE is available and is configured properly. Note that not only the right JRE should be available, but also JAVA_HOME should be pointing to JRE’s home directory. </p>
 
 <p>Now, the application is ready to be started with the following command line:</p>
 
 <pre><code>./surf.sh dump-stream app-node1
 </code></pre>
 
-<p>While no output is yet displayed by the application, the application log file can be found in <em>**surf</em>home**/log_ directory. The file will contain information about application start up and current listening state.</p>
+<p>While no output is yet displayed by the application, the application log file can be found in <em><strong>surf-home</strong>/log</em> directory. The file will contain information about application start up and current listening state.</p>
 
 <p><strong>Configuring Surf Data Source</strong><br>
 Copy the surf distribution package to your local machine and ensure Java 7 availability.
-Similarly to application, let’s create a configuration file source_node1.conf in <em><strong>surf-home</strong>/conf</em> directory containing the following entries: </p>
+Similarly to the application, let’s create a configuration file <em>source-node1.conf</em> in <em><strong>surf-home</strong>/conf</em> directory containing the following entries: </p>
 
 <pre><code>aws-access-key-id: &lt;your aws access key&gt;
 aws-secret-key: &lt;your aws secret key&gt;
@@ -159,11 +161,11 @@ As the data source comes on-line, the Surf application comes to life. You can se
 <h2>
 <a name="example-2--page-counts" class="anchor" href="#example-2--page-counts"><span class="octicon octicon-link"></span></a>Example 2 – Page Counts</h2>
 
-<p>In this example we explore more interesting data source and application logic. The example illustrates how Surf can monitor a weblog file and stream newly added records to a Kinesis application.</p>
+<p>In this example we explore a more interesting data source and application logic. The example illustrates how Surf can monitor a weblog file for updates and stream newly added records to a Kinesis application.</p>
 
 <p><img src="images/example_2_1.png" alt="Example2 Picture"></p>
 
-<p>The log file in this example contains information about page hits. The sample file can be obtained from this website - <a href="http://ita.ee.lbl.gov/html/traces.html">http://ita.ee.lbl.gov/html/traces.html</a>. We took <em>epa-http.txt</em> file for testing.</p>
+<p>The log file in this example contains information about web page visits. You can download a sample web log from this website - <a href="http://ita.ee.lbl.gov/html/traces.html">http://ita.ee.lbl.gov/html/traces.html</a>. We took <em>epa-http.txt</em> file for testing.</p>
 
 <p>Records in the file look as follows:</p>
 
@@ -174,12 +176,12 @@ wpbfl2-45.gate.net [29:23:54:16] "GET /icons/circle_logo_small.gif HTTP/1.0" 200
 wpbfl2-45.gate.net [29:23:54:18] "GET /logos/small_gopher.gif HTTP/1.0" 200 935
 </code></pre>
 
-<p>Surf application logic keeps count of how many times each particular page has been referenced. </p>
+<p>Surf application logic keeps count of how many times each particular page has been visited. </p>
 
 <h3>
 <a name="configuring-surf-application" class="anchor" href="#configuring-surf-application"><span class="octicon octicon-link"></span></a>Configuring Surf Application</h3>
 
-<p>Source code for the application can be found in files <code>com.informatica.surf.sample.PageCount.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sample/src/main/java/com/informatica/surf/sample/PageCount.java">here</a> and <code>com.informatica.surf.sample.PageCountHandler.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sample/src/main/java/com/informatica/surf/sample/PageCountHandler.java">here</a>. Just like in the simple example before, all application logic resides in <em>onEvent</em> handler. The logic deals with taking records off the stream, parsing them to extract the page URL, and then keeping count of how many times each URL has been referenced:   </p>
+<p>Source code for the application can be found in files <code>com.informatica.surf.sample.PageCount.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sample/src/main/java/com/informatica/surf/sample/PageCount.java">here</a> and <code>com.informatica.surf.sample.PageCountHandler.java</code> <a href="https://github.com/InformaticaCorp/Surf/blob/master/sample/src/main/java/com/informatica/surf/sample/PageCountHandler.java">here</a>. Just like in the simple example before, all application logic resides in <em>onEvent</em> handler. The logic deals with taking records off the stream, parsing them to extract the page URL, and then keeping count of how many times each URL has been referenced: </p>
 
 <pre><code>public void onEvent(KinesisEvent t, long l, boolean bln) throws Exception {
     String data = t.getData();
@@ -214,9 +216,9 @@ wpbfl2-45.gate.net [29:23:54:18] "GET /logos/small_gopher.gif HTTP/1.0" 200 935
 <h3>
 <a name="configuring-surf-data-source" class="anchor" href="#configuring-surf-data-source"><span class="octicon octicon-link"></span></a>Configuring Surf Data Source</h3>
 
-<p>The data source for this example is a growing weblog file. Let’s create a new directory <em><strong>surf-home</strong>/data</em> and copy the test data - <em>epa-http.txt</em> file.  </p>
+<p>The data source for this example is a growing weblog file. Let’s create a new directory <em><strong>surf-home</strong>/data</em> and copy the test data - <em>epa-http.txt</em> file. </p>
 
-<p>Next, let’s create a different data source configuration file for this scenario. File  <em>source-node2.conf</em> should contain the following entries:</p>
+<p>Next, let’s create a different data source configuration file for this scenario. File <em>source-node2.conf</em> should contain the following entries:</p>
 
 <pre><code>aws-access-key-id: &lt;your aws access key&gt;
 aws-secret-key: &lt;your aws secret key&gt;
@@ -224,10 +226,10 @@ aws-kinesis-stream-name: &lt;kinesis stream name&gt;
 vds-source-class: com.informatica.binge.sources.file.BingeFileReader
 flight_size: 10
 directory: ../data
-filename:  test_data.txt
+filename: test_data.txt
 </code></pre>
 
-<p>Because Surf monitors data file for inserted records, we need to take a few steps to enable the record stream:</p>
+<p>Because Surf monitors data file for inserted records, we need to take a few steps to enable the record stream while being in <em><strong>surf-home</strong>/data</em> directory:</p>
 
 <pre><code>$touch test_data.txt
 $../bin/surf.sh start-node source-node2.conf
@@ -238,7 +240,7 @@ $cat epa-http.txt &gt;&gt; test_data.txt
       </section>
     </div>
 
-    <!-- FOOTER  -->
+    <!-- FOOTER -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
         <p class="copyright">Surf-example-page maintained by <a href="https://github.com/bbnow">bbnow</a></p>
